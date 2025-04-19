@@ -3,32 +3,35 @@ using System.Collections;
 
 public class MonsterClimber2D : Unit
 {
-    public float moveSpeed = 5f;
-    public float rayDistance = 0.3f;
-    public float climbHeight = 1.2f; //boxcollider2D.size.y = 1.2f
-    public float jumpHeight = 1f;
-    public LayerMask obstacleLayer;
-    public LayerMask GroundLayer;
-    
-    public Vector2 rayDirection = Vector2.left;
+    enum P_State
+    {
+        Idle,
+        Jumping,
+        Falling
+    }
 
-    //private bool isJumping = false;
-    private bool Falling = false;
+    private P_State NowState = P_State.Idle;
+    private float moveSpeed = 5f;
+    private float rayDistance = 0.3f;
+    private LayerMask obstacleLayer;
+    private Vector2 rayDirection = Vector2.left;
+    private float fGravity = 10;
 
-    BoxCollider2D m_BoxColliderComponent;
-    Vector3 OffsetPosition;
+    private BoxCollider2D m_BoxColliderComponent;
+    private Vector3 OffsetPosition;
+    public int TestNumber = 0;
+
+    private void Awake()
+    {
+        Init();
+    }
 
     private void Start()
     {
-        obstacleLayer = LayerMask.GetMask("Wall", "Monster");
-        GroundLayer = LayerMask.GetMask("Ground");
-        //obstacleLayer = LayerMask.GetMask("Wall");
+        obstacleLayer = LayerMask.GetMask("Monster");
         this.gameObject.layer = 7; // Monster
-
         m_BoxColliderComponent = this.gameObject.GetComponent<BoxCollider2D>();
-
         OffsetPosition = new Vector3(m_BoxColliderComponent.offset.x, m_BoxColliderComponent.offset.y, 0);
-        
 
     }
 
@@ -37,22 +40,32 @@ public class MonsterClimber2D : Unit
 
         if (Input.GetKey(KeyCode.C))
         {
-            if (!Falling)
+            if (!GetMyState(P_State.Jumping))
                 StartCoroutine(MyJump());
         }
 
-       
+        transform.Translate(Vector2.left * moveSpeed * Time.deltaTime);
 
     }
 
     private void LateUpdate()
     {
+        if (Input.GetKey(KeyCode.LeftArrow))
+            transform.Translate(Vector2.left * moveSpeed * Time.deltaTime);
+
+        if (GetMyState(P_State.Falling) && !this.gameObject.GetComponent<Rigidbody2D>())
+        {
+            transform.Translate(Vector2.down * fGravity * Time.deltaTime * 0.5f);
+        }
+
+        if (!GetMyState(P_State.Jumping))
+            GroundCheck();
+
         FindOther();
     }
 
     void FindOther()
     {
-        //if (isJumping) return;
 
         Vector3 LayPosition = transform.position;
         LayPosition.x -= 0.7f;
@@ -65,85 +78,105 @@ public class MonsterClimber2D : Unit
         {
             if (hit.collider.gameObject.layer == 7) // Monster
             {
-                Vector3 targetPos = hit.collider.transform.position + Vector3.up * climbHeight;
-
-                //StartCoroutine(JumpTo(targetPos));
-
-                if (!Falling)
+                if (!GetMyState(P_State.Jumping))
                     StartCoroutine(MyJump());
             }
 
-            //Debug.Log("충돌!");
+        }
 
+
+    }
+
+    void GroundCheck()
+    {
+       
+        Collider2D hitcollider = ShotRayDown();
+
+        if (hitcollider != null)
+        {
+            SetMyState(P_State.Idle);
         }
         else
         {
-            transform.Translate(Vector2.left * moveSpeed * Time.deltaTime);
+            SetMyState(P_State.Falling);
         }
-
-        //transform.Translate(Vector2.left * moveSpeed * Time.deltaTime);
     }
+
+
     IEnumerator MyJump()
     {
-        float m_fJumpingPower = 10;
-        float Gravity = 10;
-        Falling = true;
+        float m_fJumpingPower = 5;
 
-        bool bNowSky = true;
+        SetMyState(P_State.Jumping);
+
         float elapsed = 0f;
-        float jumpDuration = 0.2f;
+        float jumpDuration = 3f;
 
-        //while (bNowSky)
+        Debug.Log("점프시작!");
+
         while (elapsed < jumpDuration)
         {
             transform.Translate(Vector2.up * m_fJumpingPower * Time.deltaTime);
 
-            //if(m_fJumpingPower > -Gravity )
-            if (m_fJumpingPower > 0)
+            if (m_fJumpingPower > -fGravity)
             {
-                m_fJumpingPower -= Time.deltaTime * Gravity;
+                m_fJumpingPower -= Time.deltaTime * fGravity;
             }
-            else
-                m_fJumpingPower = 0;
-
-            Vector3 LayPosition = transform.position;
-            LayPosition.x -= 0.7f;
-            LayPosition.y += 0.8f;
 
 
-            Vector3 ColliderPosition = transform.position + OffsetPosition;
-            RaycastHit2D hit2 = Physics2D.Raycast(ColliderPosition, Vector2.down, 0.6f, GroundLayer);
-            Debug.DrawRay(ColliderPosition, Vector3.down * 0.6f);
-            if (hit2.collider != null)
-            {
-                if (hit2.collider.gameObject.layer == 8)
-                {
-
-                    bNowSky = false;
-                    Debug.Log("바닥충돌!");
-
-                    break;
-
-
-                }
-            }
+            Collider2D hitcollider = ShotRayDown();
+            if (hitcollider != null)
+                break;
 
             elapsed += Time.deltaTime;
 
             yield return null;
         }
 
-        Falling = false;
-        
-    }
-    void OnDrawGizmos()
-    {
-        //Vector3 LayPosition = transform.position;
-        //LayPosition.x -= 0.7f;
-        //LayPosition.y += 0.8f;
+        Debug.Log("점프끝!");
 
-        //Gizmos.color = Color.red;
-        //Gizmos.DrawLine(LayPosition, LayPosition + Vector3.left * rayDistance );
-        //Gizmos.DrawLine(LayPosition, transform.position + Vector3.left * detectDistance);
+        SetMyState(P_State.Idle);
+
+
+    }
+
+
+    Collider2D ShotRayDown()
+    {
+        float GroundRayDistance = 0.01f;
+        Vector3 ColliderPosition = transform.position + OffsetPosition;
+        ColliderPosition.y -= (m_BoxColliderComponent.size.y * 0.5f) + GroundRayDistance;
+
+        RaycastHit2D hit2 = Physics2D.Raycast(ColliderPosition, Vector2.down, GroundRayDistance);
+        Debug.DrawRay(ColliderPosition, Vector3.down * GroundRayDistance);
+
+        if (hit2.collider == null)
+            return null;
+        else
+        {
+            if (hit2.collider.gameObject == this.gameObject) // 자기자신이면 취소
+                return null;
+            else
+                return hit2.collider;
+
+        }
+
+    }
+
+
+    bool GetMyState(P_State currentstate)
+    {
+        if (NowState == currentstate)
+            return true;
+        else
+            return false;
+    }
+
+    void SetMyState(P_State state)
+    {
+        if (NowState != state)
+        {
+            NowState = state;
+        }
     }
 }
