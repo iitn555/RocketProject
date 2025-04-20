@@ -7,6 +7,27 @@ using UnityEngine;
 public class CollisionObjectManagers : MonoBehaviour
 {
 
+
+    public static bool bRectCollsionCheck(Unit first, Unit second)
+    {
+
+        UpdateList_OneCGameObject(first);
+        UpdateList_OneCGameObject(second);
+
+        MYRECT rc1 = first.m_tRect;
+        MYRECT rc2 = second.m_tRect;
+
+        if (rc1.left < rc2.right &&
+            rc1.right > rc2.left &&
+            rc1.top > rc2.bottom &&
+            rc1.bottom < rc2.top)
+            return true;
+
+        return false;
+    }
+
+
+
     public static bool bRectCollsionPushTopObject(Unit first, Unit second)
     {
 
