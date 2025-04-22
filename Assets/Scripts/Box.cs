@@ -7,6 +7,7 @@ public class Box : Unit
 
     private void Awake()
     {
+        MaxHp = 10;
         Init();
     }
 }

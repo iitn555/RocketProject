@@ -12,6 +12,24 @@ public struct MYRECT
 public class Unit : MonoBehaviour
 {
     protected GameObject ThisGameObject { get; set; }
+    protected int CurrentHp = 0;
+    protected int MaxHp = 10;
+    protected int Damage = 0;
+
+
+    public bool bDie
+    {
+        get;
+        protected set;
+
+    }
+
+
+    public void SetDie(bool _bdie)
+    {
+        bDie = _bdie;
+    }
+
 
     public GameObject Get_GameObject
     {
@@ -28,9 +46,26 @@ public class Unit : MonoBehaviour
 
     }
 
+    public void GetDamage(int _damage)
+    {
+        CurrentHp -= _damage;
+
+        if(CurrentHp <= 0)
+        {
+            bDie = true;
+            ThisGameObject.SetActive(false);
+        }
+    }
+
+    public void CheckDie()
+    {
+
+    }
+
     protected virtual void Init()
     {
         ThisGameObject = this.gameObject;
+        CurrentHp = MaxHp;
     }
 
 }

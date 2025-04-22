@@ -26,14 +26,15 @@ public class ZombieMonster : Unit
     public bool bAttacking = false;
 
     private float AttackCoolTime = AttackCoolDownTimer;
-    private const float AttackCoolDownTimer = 2;
+    private const float AttackCoolDownTimer = 4;
     private float JumpCoolTime = JumpCoolDownTimer;
-    private const float JumpCoolDownTimer = 2;
-
+    private const float JumpCoolDownTimer = 4;
     private float BackPushCoolTime = BackPushCoolDownTimer;
-    private const float BackPushCoolDownTimer = 2;
+    private const float BackPushCoolDownTimer = 4;
 
-    public bool bBackPushing = false;
+    private bool bBackPushing = false;
+    private Coroutine myCoroutine = null;
+
 
     public Vector3 MoveDirection = Vector3.left;
 
@@ -41,8 +42,29 @@ public class ZombieMonster : Unit
 
     private Rigidbody2D m_RigidBody;
 
+    private void OnEnable()
+    {
+        bDie = false;
+
+        CurrentHp = MaxHp;
+
+        AttackCoolTime = AttackCoolDownTimer;
+        JumpCoolTime = JumpCoolDownTimer;
+        BackPushCoolTime = BackPushCoolDownTimer;
+
+        if(myCoroutine != null)
+        {
+            bBackPushing = false;
+            StopCoroutine(myCoroutine);
+            myCoroutine = null;
+        }
+        
+    }
+
     private void Awake()
     {
+        MaxHp = 10;
+        Damage = 1;
         Init();
     }
 
@@ -54,28 +76,14 @@ public class ZombieMonster : Unit
         OffsetPosition = new Vector3(m_BoxCollider.offset.x, m_BoxCollider.offset.y, 0);
 
         ZombieAnimator = GetComponent<Animator>();
-        AttackCoolTime = AttackCoolDownTimer;
-
         m_RigidBody = GetComponent<Rigidbody2D>();
+        m_RigidBody.excludeLayers = LayerMask.GetMask("Wall");
 
     }
 
+
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            if (!GetMyState(P_State.Jumping))
-                StartCoroutine(MyJump());
-        }
-
-        if (GetMyState(P_State.Falling))
-        {
-            transform.Translate(Vector2.down * fGravity * Time.deltaTime * 0.5f);
-        }
-
-
-        //CheckCollisionBox();
-
         if (AttackCoolTime < AttackCoolDownTimer)
             AttackCoolTime += Time.deltaTime;
         else
@@ -91,43 +99,46 @@ public class ZombieMonster : Unit
         else
             BackPushCoolTime = BackPushCoolDownTimer;
 
-        //if (!GetMyState(P_State.Attacking))
-        //{
-        //        Moving();
-        //}
+        if (GetMyState(P_State.Falling))
+        {
+            transform.Translate(Vector2.down * fGravity * Time.deltaTime * 0.5f);
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            if(!GetMyState(P_State.Jumping))
+                StartCoroutine(MyJump());
+
+        }
+
+        if (!GetMyState(P_State.Attacking))
+        {
+            //if (!GetMyState(P_State.Jumping))
+            {
+                //if (m_RigidBody.velocity.x >= 0)
+                    Moving();
+            }
+        }
+
+        
     }
 
     private void FixedUpdate()
     {
-        if (!GetMyState(P_State.Attacking))
-            Moving();
+
+
+        //if (!GetMyState(P_State.Attacking))
+        //{
+        //    if (!GetMyState(P_State.Jumping))
+        //        Moving();
+
+        //}
+
 
     }
 
     private void LateUpdate()
     {
-        //if (!GetMyState(P_State.Attacking) || !GetMyState(P_State.Jumping))
-        //    Moving();
-
-        //if (TestNumber == 1)
-        //{
-        //    if (Input.GetKey(KeyCode.LeftArrow))
-        //    {
-        //        //transform.Translate(Vector2.left * fMoveSpeed * Time.deltaTime);
-
-        //        if (m_RigidBody.velocity.x > -fMaxSpeed)
-        //            m_RigidBody.AddForce(Vector2.left * fMoveSpeed * 10);
-        //    }
-
-        //    if (Input.GetKey(KeyCode.RightArrow))
-        //    {
-        //        //transform.Translate(Vector2.right * fMoveSpeed * Time.deltaTime);
-        //        if (m_RigidBody.velocity.x < fMaxSpeed)
-        //            m_RigidBody.AddForce(Vector2.right * fMoveSpeed * 10);
-        //    }
-        //}
-
-
 
         if (!GetMyState(P_State.Jumping))
             GroundCheck();
@@ -141,32 +152,39 @@ public class ZombieMonster : Unit
 
         Vector3 LayPosition = transform.position;
         LayPosition.x -= 0.7f;
-        LayPosition.y += 0.8f;
+        LayPosition.y += 0.4f;
 
         Debug.DrawRay(LayPosition, Vector3.left * rayDistance);
         RaycastHit2D hit = Physics2D.Raycast(LayPosition, Vector2.left, rayDistance, obstacleLayer);
 
         if (hit.collider != null)
         {
-            if (hit.collider.gameObject.layer == 6) // Wall
+            if (hit.collider.gameObject.activeSelf && hit.collider.gameObject.layer == 6) // Wall
             {
                 if (AttackCoolTime == AttackCoolDownTimer)
                 {
-                    ZombieAnimator.Play("Attack");
-                    AttackCoolTime = 0;
+
+
+                    Box _box = hit.collider.gameObject.GetComponent<Box>();
+                    if (_box != null)
+                    {
+                        ZombieAnimator.Play("Attack");
+                        AttackCoolTime = GetRandomNumber(0, 3f);
+
+                        _box.GetDamage(Damage);
+                    }
+
                 }
             }
 
-
-
             if (hit.collider.gameObject.layer == 7) // 몬스터
             {
-                if (!bBackPushing)
+                if (!bBackPushing || myCoroutine == null)
                 {
                     if (GetMyState(P_State.Idle) && JumpCoolTime == JumpCoolDownTimer)
                     {
                         StartCoroutine(MyJump());
-                        JumpCoolTime = 0;
+                        JumpCoolTime = GetRandomNumber(0, 3f);
                     }
                 }
             }
@@ -183,17 +201,15 @@ public class ZombieMonster : Unit
 
         if (!GetMyState(P_State.Attacking) && AttackCoolTime == AttackCoolDownTimer)
         {
-            Debug.Log("좀비 공격");
             SetMyState(P_State.Attacking);
 
-            AttackCoolTime = 0;
+            AttackCoolTime = GetRandomNumber(0, 3f);
         }
 
     }
 
     public void OnAttackEnd()
     {
-        Debug.Log("좀비 공격 종료");
 
         SetMyState(P_State.Idle);
 
@@ -205,16 +221,16 @@ public class ZombieMonster : Unit
         if (!bBackPushing && BackPushCoolTime == BackPushCoolDownTimer)
         {
             bBackPushing = true;
-            StartCoroutine(PushBackSide());
+            myCoroutine = StartCoroutine(PushBackSide());
 
-            BackPushCoolTime = 0;
+            BackPushCoolTime = GetRandomNumber(0, 3f);
         }
 
     }
 
     IEnumerator PushBackSide()
     {
-        Debug.Log("밀기시작");
+        //Debug.Log("밀기시작");
         bBackPushing = true;
 
         float elapsed = 0f;
@@ -234,18 +250,18 @@ public class ZombieMonster : Unit
 
         }
 
-        Debug.Log("밀기끝");
+        //Debug.Log("밀기끝");
 
         bBackPushing = false;
+        myCoroutine = null;
         MoveDirection = Vector3.left;
+
+        
     }
 
     void Moving()
     {
-        //transform.Translate(MoveDirection * fMoveSpeed * Time.deltaTime);
-
         m_RigidBody.velocity = MoveDirection * fMoveSpeed; // 좀비끼리 비비는것을 방지하기 위해
-
     }
 
     void GroundCheck()
@@ -273,18 +289,17 @@ public class ZombieMonster : Unit
 
     IEnumerator MyJump()
     {
-        float m_fJumpingPower = 5.3f;
+        //float m_fJumpingPower = 5.3f;
+        float m_fJumpingPower = 5.5f;
 
         SetMyState(P_State.Jumping);
+        //Debug.Log("점프시작");
 
         float elapsed = 0f;
-        float jumpDuration = 2f;
-
-        Debug.Log("점프시작!");
+        float jumpDuration = 3f;
 
         while (elapsed < jumpDuration)
         {
-
             transform.Translate(Vector2.up * m_fJumpingPower * Time.deltaTime);
 
             if (m_fJumpingPower > -fGravity)
@@ -301,10 +316,8 @@ public class ZombieMonster : Unit
             yield return null;
         }
 
-        Debug.Log("점프끝!");
-
         SetMyState(P_State.Idle);
-
+        //Debug.Log("점프종료");
 
     }
 
@@ -316,7 +329,7 @@ public class ZombieMonster : Unit
         ColliderPosition.y -= (m_BoxCollider.size.y * 0.5f) + GroundRayDistance;
 
         RaycastHit2D hit2 = Physics2D.Raycast(ColliderPosition, Vector2.down, GroundRayDistance);
-        Debug.DrawRay(ColliderPosition, Vector3.down * GroundRayDistance);
+        //Debug.DrawRay(ColliderPosition, Vector3.down * GroundRayDistance);
 
         if (hit2.collider == null)
             return null;
@@ -364,5 +377,12 @@ public class ZombieMonster : Unit
         {
             NowState = state;
         }
+    }
+
+    float GetRandomNumber(float min, float max)
+    {
+        float num = Random.Range(min, max);
+
+        return num;
     }
 }
