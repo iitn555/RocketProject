@@ -53,7 +53,9 @@ public class Player : Unit
 
     void Shot()
     {
-        if (!PoolManager.GetInstance().Dictionary_AllGameObject.ContainsKey("zombie"))
+        
+
+        if (!Managers.Pool_Instance.Dictionary_AllGameObject.ContainsKey("zombie"))
             return;
 
         ZombieMonster ZM = FindCloseMonster();
@@ -63,20 +65,20 @@ public class Player : Unit
 
         var dir = (ZM.transform.position - transform.position).normalized;
 
-        Bullet bul = PoolManager.GetInstance().GetObject<Bullet>();
+        Bullet bul = Managers.Pool_Instance.GetObject<Bullet>();
         bul.StartShot(dir, transform.position);
       
     }
 
     ZombieMonster FindCloseMonster()
     {
-        if (!PoolManager.GetInstance().Dictionary_AllGameObject.ContainsKey("zombie"))
+        if (!Managers.Pool_Instance.Dictionary_AllGameObject.ContainsKey("zombie"))
             return null;
 
         float MinDistance = 9999;
         ZombieMonster CloseMonster = null;
 
-        foreach (var mon1 in PoolManager.GetInstance().Dictionary_AllGameObject["zombie"])
+        foreach (var mon1 in Managers.Pool_Instance.Dictionary_AllGameObject["zombie"])
         {
 
             if (mon1.bDie) // 죽어있는 몬스터는 패스
