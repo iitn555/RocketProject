@@ -17,10 +17,7 @@ public class ResourceManager
             _root.transform.SetParent(GameObject.Find("@Managers").transform);
 
             //UnityEngine.Object.DontDestroyOnLoad(_root);
-        }
-
-        
-
+        }             
     }
 
     public T Load<T>(string path) where T : Object
@@ -40,7 +37,7 @@ public class ResourceManager
         return Resources.Load<T>(path);
     }
 
-    public GameObject Instantiate(string path, Transform parent = null) // Get Resources
+    public GameObject Instantiate(string path, Transform parent = null) // 리소스폴더에서 로드
     {
         GameObject original = Load<GameObject>($"Prefabs/{path}");
         if (original == null)

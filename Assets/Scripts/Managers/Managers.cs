@@ -23,7 +23,7 @@ public class Managers : MonoBehaviour
         Init();
 
 
-        StartCoroutine(LoadCoroutine());
+        //StartCoroutine(LoadCoroutine());
 
     }
 
@@ -54,7 +54,7 @@ public class Managers : MonoBehaviour
     }
 
 
-    public System.Collections.IEnumerator LoadCoroutine()
+    public System.Collections.IEnumerator LoadCoroutine() //로딩하는시간이 필요하다
     {
 
         foreach (string address in Resource_Instance.PrefabList)

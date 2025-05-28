@@ -24,10 +24,10 @@ public class Player : Unit
     void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            Shot();
-        }
+        //if (Input.GetKeyDown(KeyCode.E))
+        //{
+        //    Shot();
+        //}
 
         if (AttackCoolTime == AttackCoolDownTimer)
         {
@@ -65,7 +65,7 @@ public class Player : Unit
 
         var dir = (ZM.transform.position - transform.position).normalized;
 
-        Bullet bul = Managers.Pool_Instance.GetObject<Bullet>();
+        Bullet bul = Managers.Pool_Instance.MakeOrGetObject<Bullet>();
         bul.StartShot(dir, transform.position);
       
     }

@@ -104,23 +104,22 @@ public class ZombieMonster : Unit
             transform.Translate(Vector2.down * fGravity * Time.deltaTime * 0.5f);
         }
 
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            if(!GetMyState(P_State.Jumping))
-                StartCoroutine(MyJump());
-
-        }
+       
 
         if (!GetMyState(P_State.Attacking))
         {
-            //if (!GetMyState(P_State.Jumping))
-            {
-                //if (m_RigidBody.velocity.x >= 0)
                     Moving();
-            }
         }
 
+        //if (Input.GetKeyDown(KeyCode.C))
+        //{
+        //    if (!GetMyState(P_State.Jumping))
+        //        StartCoroutine(MyJump());
+
+        //}
+
         
+
     }
 
     private void FixedUpdate()

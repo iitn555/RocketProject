@@ -5,56 +5,29 @@ using System;
 public class MainGame : MonoBehaviour
 {
 
-    
+    private float ZombieGenerationCycleTime = 0.9f;
 
-    public PoolManager _pool;
-
- 
-    //private static MainGame Instance = null;
-    //public static MainGame GetInstance() { Init(); return Instance; }
-
-    //static void Init()
-    //{
-    //    GameObject go = GameObject.Find("MainGame");
-
-    //    //if (go == null)
-    //    //{
-    //    //    go = new GameObject { name = "MainGame" };
-    //    //    go.AddComponent<MainGame>();
-    //    //}
-
-    //    Instance = go.GetComponent<MainGame>();
-    //}
+    public GameObject BigWall;
 
     void Start()
     {
 
         Managers.Input_Instance.Test();
-        
-        
+
+        StartCoroutine(ExecuteEverySeconds());
 
 
-        //StartCoroutine(ExecuteEverySeconds());
-        //Managers.Pool.GetObject<ZombieMonster>();
+    }
 
+    IEnumerator ExecuteEverySeconds()
+    {
+        while (true)
+        {
+            Managers.Pool_Instance.MakeOrGetObject<ZombieMonster>();
 
+            yield return new WaitForSeconds(ZombieGenerationCycleTime);
 
-
-
-
-
-
-        //var _player = BoxTrans.Find("Hero").gameObject.AddComponent<Player>();
-        //RegisterUnit<Player>(_player, "player");
-        ////_player.ReadyBullet(_bullets);
-
-
-        //Bullet[] _bullets = new Bullet[12];
-
-        //for (int i = 0; i < 12; ++i)
-        //{
-        //    _bullets[i] = CreateBullet();
-        //}
+        }
 
 
     }
@@ -65,17 +38,66 @@ public class MainGame : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Q))
         {
-
         }
 
-        
+        if (Input.GetKeyDown(KeyCode.Z))
+            Managers.Pool_Instance.MakeOrGetObject<ZombieMonster>();
 
+        CheckGameEnd();
     }
 
     private void LateUpdate()
     {
         //CollisionZombies();
     }
+
+    void CheckGameEnd()
+    {
+        if (!BigWall.activeSelf)
+            return;
+
+        bool checkbox = false;
+
+        if(Managers.Pool_Instance.GetObject<Box>() != null)
+        {
+            checkbox = true;
+
+        }
+        //for (int i = 0; i < 5; ++i)
+        //{
+            
+        //    if (Managers.Pool_Instance.GetObject<Box>().gameObject)
+        //    {
+        //        checkbox = true;
+        //    }
+        //}
+
+        if (!checkbox) //모든 박스가 비활성화 되었을때 충돌하지 않도록 하여 게임 종료를 알림
+        {
+            StartCoroutine(DeactiveBigWall());
+        }
+    }
+
+    IEnumerator DeactiveBigWall()
+    {
+
+        yield return new WaitForSeconds(0.5f);
+
+        BigWall.SetActive(false);
+        Managers.Pool_Instance.GetObject<Player>().gameObject.SetActive(false);
+
+        yield return null;
+    }
+
+
+
+
+
+
+
+
+
+
 
     //void CollisionZombies()
     //{
@@ -90,7 +112,7 @@ public class MainGame : MonoBehaviour
     //            {
     //                if (CollisionObjectManagers.bRectCollsionPushTopObject(zom1, zom2))
     //                {
-                        
+
     //                }
     //            }
     //        }
@@ -98,6 +120,6 @@ public class MainGame : MonoBehaviour
 
     //}
 
-    
+
 
 }
