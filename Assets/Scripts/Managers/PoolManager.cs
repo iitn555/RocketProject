@@ -64,19 +64,48 @@ public class PoolManager
 
     }
 
-    public void GetObjTEST()
+    public T MakeOrGetObject<T>() where T : Unit
     {
-        var p = GetObject<Player>();
-        var z = GetObject<ZombieMonster>();
 
-        int q = 0;
+        if (Dictionary_AllGameObject.ContainsKey(typeof(T).Name))
+        {
+            foreach (var _Object in Dictionary_AllGameObject[typeof(T).Name])
+            {
+                if (_Object.bDie)
+                {
+                    _Object.Respawn();
+                    return _Object as T;
+                }
+
+            }
+            return CreateObject<T>() as T;
+        }
+        else
+        {
+            return CreateObject<T>() as T;
+        }
+
     }
 
+    public T GetObject<T>() where T : Unit // 여기개선?
+    {
+        if (typeof(T) == typeof(T))
+        {
+            if (Dictionary_AllGameObject.ContainsKey(typeof(T).Name))
+            {
+                foreach (var obj in Dictionary_AllGameObject[typeof(T).Name])
+                {
+                    if (!obj.bDie) // 죽어있지않다면 
+                    {
+                        return obj as T; //반환
+                    }
 
+                }
+            }
+        }
 
-
-
-
+        return null;
+    }
 
     public void CreatePlayer()
     {
@@ -88,149 +117,10 @@ public class PoolManager
         P_Rigid.constraints = RigidbodyConstraints2D.FreezeRotation;
         var BC2D = LastPlayer.AddComponent<BoxCollider2D>();
         BC2D.size = new Vector3(0.95f, 1.45f);
-        RegisterUnit<Player>(_playercomponent, "player");
+        RegisterUnit<Player>(_playercomponent, typeof(Player).Name);
+
+        
     }
-
-    public T MakeOrGetObject<T>() where T : Unit // 여기개선?
-    {
-        if (typeof(T) == typeof(ZombieMonster))
-        {
-            if (Dictionary_AllGameObject.ContainsKey("zombie"))
-            {
-                foreach (var zom in Dictionary_AllGameObject["zombie"])
-                {
-                    if (zom.bDie)
-                    {
-
-                        zom.Get_GameObject.SetActive(true);
-                        zom.SetDie(false);
-                        zom.transform.position = RespawnPosition;
-                        Debug.Log("좀비 리필");
-                        return zom as T;
-                    }
-
-                }
-                Debug.Log("좀비 생성");
-                return CreateZombie() as T;
-            }
-            else
-            {
-                return CreateZombie() as T;
-            }
-
-        }
-
-        if (typeof(T) == typeof(Bullet))
-        {
-
-            if (Dictionary_AllGameObject.ContainsKey("bullet"))
-            {
-                foreach (var bul in Dictionary_AllGameObject["bullet"])
-                {
-                    if (bul.bDie)
-                    {
-                        if (!bul.GetComponent<Bullet>().bFlying)
-                        {
-                            bul.Get_GameObject.SetActive(true);
-                            bul.SetDie(false);
-                            return bul as T;
-
-                        }
-                    }
-
-                }
-
-                return CreateBullet() as T;
-            }
-            else
-                return CreateBullet() as T;
-        }
-
-        return null;
-
-    }
-
-    public T GetObject<T>() where T : Unit // 여기개선?
-    {
-        if (typeof(T) == typeof(Player))
-        {
-            if (Dictionary_AllGameObject.ContainsKey("player"))
-            {
-                foreach (var p in Dictionary_AllGameObject["player"])
-                {
-                    if (!p.bDie) // 죽어있지않다면 
-                    {
-                        return p as T; //반환
-                    }
-
-                }
-
-
-            }
-        }
-
-            if (typeof(T) == typeof(ZombieMonster))
-        {
-            if (Dictionary_AllGameObject.ContainsKey("zombie"))
-            {
-                foreach (var zom in Dictionary_AllGameObject["zombie"])
-                {
-                    if (!zom.bDie) // 죽어있지않다면 
-                    {
-                        return zom as T; //반환
-                    }
-
-                }
-            }
-
-        }
-
-        if (typeof(T) == typeof(Bullet))
-        {
-
-            if (Dictionary_AllGameObject.ContainsKey("bullet"))
-            {
-                foreach (var bul in Dictionary_AllGameObject["bullet"])
-                {
-                    if (!bul.bDie)
-                    {
-                        if (bul.GetComponent<Bullet>().bFlying)
-                        {
-
-                            return bul as T;
-
-                        }
-                    }
-
-                }
-
-            }
-        }
-
-        if (typeof(T) == typeof(Box))
-        {
-            if (Dictionary_AllGameObject.ContainsKey("box"))
-            {
-                foreach (var box in Dictionary_AllGameObject["box"])
-                {
-                    if (!box.bDie)
-                    {
-
-                        return box as T;
-
-                    }
-
-                }
-
-            }
-        }
-
-
-        return null;
-    }
-
-
-
 
     void CreateBox()
     {
@@ -245,50 +135,24 @@ public class PoolManager
             var Rigid = box.AddComponent<Rigidbody2D>();
             Rigid.constraints = RigidbodyConstraints2D.FreezeRotation;
             Box BoxComponent = box.AddComponent<Box>();
-            RegisterUnit<Box>(BoxComponent, "box");
+            RegisterUnit<Box>(BoxComponent, typeof(Box).Name);
             AllBox[i] = box;
 
         }
     }
 
-    public ZombieMonster CreateZombie()
+    public T CreateObject<T>() where T : Unit
     {
+        GameObject _unitobject = Managers.Resource_Instance.Instantiate(typeof(T).Name, _root);
+        T _unitcomponent = _unitobject.AddComponent<T>();
+        RegisterUnit<T>(_unitcomponent, typeof(T).Name);
+        _unitcomponent.Respawn();
 
-        GameObject _zom = Managers.Resource_Instance.Instantiate("ZombieMelee", ZombieMelee_Root);
-
-        _zom.SetActive(true);
-        _zom.transform.position = RespawnPosition;
-
-        ZombieMonster zombiecomponent = _zom.AddComponent<ZombieMonster>();
-        RegisterUnit<ZombieMonster>(zombiecomponent, "zombie");
-
-        var boxcom = _zom.AddComponent<BoxCollider2D>();
-        boxcom.offset = new Vector3(-0.2f, 0.5f);
-        boxcom.size = new Vector3(0.6f, 1.2f);
-        zombiecomponent.TestNumber = Dictionary_AllGameObject["zombie"].Count;
-        var Rigid = _zom.AddComponent<Rigidbody2D>(); // 좀비끼리 충돌처리를 위해
-        Rigid.constraints = RigidbodyConstraints2D.FreezeRotation;
-        Rigid.gravityScale = 0;
-
-        return zombiecomponent;
+        return _unitcomponent;
     }
 
-    Bullet CreateBullet()
-    {
+    T RegisterUnit<T>(T New_CObj, string _name) where T : Unit
 
-        GameObject _bul = Managers.Resource_Instance.Instantiate("Bullet", Bullet_Root);
-
-        _bul.SetActive(true);
-        _bul.transform.position = new Vector3(-99, -99);
-        Bullet BulletComponent = _bul.AddComponent<Bullet>();
-        RegisterUnit<Bullet>(BulletComponent, "bullet");
-
-        return BulletComponent;
-
-    }
-
-
-    T RegisterUnit<T>(T New_CObj, string _name) where T : Unit, new()
     {
 
         if (!Dictionary_AllGameObject.ContainsKey(_name))
@@ -306,19 +170,6 @@ public class PoolManager
     }
 
 
-    void BoxPushMonster()
-    {
-        if (!Dictionary_AllGameObject.ContainsKey("zombie"))
-            return;
-
-        foreach (var zom2 in Dictionary_AllGameObject["zombie"])
-        {
-            foreach (var box1 in Dictionary_AllGameObject["box"])
-            {
-                //if(box1.gameObject.activeSelf)
-                CollisionObjectManagers.bRectCollsionPushFirstObject(zom2, box1);
-            }
-        }
-    }
+ 
 
 }

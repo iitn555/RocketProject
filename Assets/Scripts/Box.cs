@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class Box : Unit
 {
+    public override void Respawn()
+    {
+
+    }
 
     private void Awake()
     {

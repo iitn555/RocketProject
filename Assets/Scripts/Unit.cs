@@ -9,13 +9,16 @@ public struct MYRECT
 
 };
 
-public class Unit : MonoBehaviour
+public abstract class Unit : MonoBehaviour
 {
     protected GameObject ThisGameObject { get; set; }
     protected int CurrentHp = 0;
     protected int MaxHp = 10;
     protected int Damage = 0;
 
+    public MYRECT m_tRect = new MYRECT();
+
+    public abstract void Respawn(); // 죽은상태에서 살아났을때 반드시 실행.
 
     public bool bDie
     {
@@ -24,12 +27,10 @@ public class Unit : MonoBehaviour
 
     }
 
-
     public void SetDie(bool _bdie)
     {
         bDie = _bdie;
     }
-
 
     public GameObject Get_GameObject
     {
@@ -39,12 +40,6 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public MYRECT m_tRect = new MYRECT();
-
-    private void Start()
-    {
-
-    }
 
     public void GetDamage(int _damage)
     {
@@ -57,10 +52,7 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void CheckDie()
-    {
 
-    }
 
     protected virtual void Init()
     {

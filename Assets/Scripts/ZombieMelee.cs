@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
-public class ZombieMonster : Unit
+public class ZombieMelee : Unit
 {
     enum P_State
     {
@@ -42,6 +42,32 @@ public class ZombieMonster : Unit
 
     private Rigidbody2D m_RigidBody;
 
+    Vector3 RespawnPosition = new Vector3(5f, -2.9f);
+    public override void Respawn()
+    {
+        gameObject.SetActive(true);
+        bDie = false;
+        transform.position = RespawnPosition;
+
+    }
+    private void Awake()
+    {
+        MaxHp = 10;
+        Damage = 1;
+        Init();
+
+        var boxcom = gameObject.AddComponent<BoxCollider2D>();
+        boxcom.offset = new Vector3(-0.2f, 0.5f);
+        boxcom.size = new Vector3(0.6f, 1.2f);
+        var Rigid = gameObject.AddComponent<Rigidbody2D>(); // 좀비끼리 충돌처리를 위해
+        Rigid.constraints = RigidbodyConstraints2D.FreezeRotation;
+        Rigid.gravityScale = 0;
+
+        if (Managers.Pool_Instance.Dictionary_AllGameObject.ContainsKey(typeof(ZombieMelee).Name))
+            TestNumber = Managers.Pool_Instance.Dictionary_AllGameObject[typeof(ZombieMelee).Name].Count;
+
+    }
+
     private void OnEnable()
     {
         bDie = false;
@@ -52,21 +78,16 @@ public class ZombieMonster : Unit
         JumpCoolTime = JumpCoolDownTimer;
         BackPushCoolTime = BackPushCoolDownTimer;
 
-        if(myCoroutine != null)
+        if (myCoroutine != null)
         {
             bBackPushing = false;
             StopCoroutine(myCoroutine);
             myCoroutine = null;
         }
-        
+
     }
 
-    private void Awake()
-    {
-        MaxHp = 10;
-        Damage = 1;
-        Init();
-    }
+
 
     private void Start()
     {
@@ -104,11 +125,11 @@ public class ZombieMonster : Unit
             transform.Translate(Vector2.down * fGravity * Time.deltaTime * 0.5f);
         }
 
-       
+
 
         if (!GetMyState(P_State.Attacking))
         {
-                    Moving();
+            Moving();
         }
 
         //if (Input.GetKeyDown(KeyCode.C))
@@ -118,7 +139,7 @@ public class ZombieMonster : Unit
 
         //}
 
-        
+
 
     }
 
@@ -255,7 +276,7 @@ public class ZombieMonster : Unit
         myCoroutine = null;
         MoveDirection = Vector3.left;
 
-        
+
     }
 
     void Moving()
@@ -274,7 +295,7 @@ public class ZombieMonster : Unit
 
             if (hitcollider.gameObject.layer == 7) // 몬스터일때
             {
-                ZombieMonster zm = hitcollider.gameObject.GetComponent<ZombieMonster>();
+                ZombieMelee zm = hitcollider.gameObject.GetComponent<ZombieMelee>();
                 zm.StartPushBackSide();
 
             }

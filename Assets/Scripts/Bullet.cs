@@ -10,6 +10,12 @@ public class Bullet : Unit
 
     float fSpeed = 10;
 
+    public override void Respawn()
+    {
+        gameObject.SetActive(true);
+        bDie = false;
+    }
+
     private void OnEnable()
     {
         bDie = false;
@@ -56,7 +62,7 @@ public class Bullet : Unit
         
         if (other.gameObject.layer == 7) // Monster
         {
-            ZombieMonster monster = other.GetComponent<ZombieMonster>();
+            ZombieMelee monster = other.GetComponent<ZombieMelee>();
             if (monster != null)
             {
                 monster.GetDamage(Damage);
@@ -73,5 +79,5 @@ public class Bullet : Unit
         gameObject.SetActive(false);
     }
 
-   
+    
 }

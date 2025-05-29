@@ -19,11 +19,11 @@ public class MainGame : MonoBehaviour
 
     }
 
-    IEnumerator ExecuteEverySeconds()
+    IEnumerator ExecuteEverySeconds() // 좀비 계속 생성
     {
         while (true)
         {
-            Managers.Pool_Instance.MakeOrGetObject<ZombieMonster>();
+            Managers.Pool_Instance.MakeOrGetObject<ZombieMelee>();
 
             yield return new WaitForSeconds(ZombieGenerationCycleTime);
 
@@ -34,14 +34,12 @@ public class MainGame : MonoBehaviour
 
     void Update()
     {
-
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-        }
+        //if (Input.GetKeyDown(KeyCode.T))
 
         if (Input.GetKeyDown(KeyCode.Z))
-            Managers.Pool_Instance.MakeOrGetObject<ZombieMonster>();
+        {
+            Managers.Pool_Instance.MakeOrGetObject<ZombieMelee>();
+        }
 
         CheckGameEnd();
     }
@@ -58,14 +56,14 @@ public class MainGame : MonoBehaviour
 
         bool checkbox = false;
 
-        if(Managers.Pool_Instance.GetObject<Box>() != null)
+        if (Managers.Pool_Instance.GetObject<Box>() != null)
         {
             checkbox = true;
 
         }
         //for (int i = 0; i < 5; ++i)
         //{
-            
+
         //    if (Managers.Pool_Instance.GetObject<Box>().gameObject)
         //    {
         //        checkbox = true;
@@ -101,12 +99,12 @@ public class MainGame : MonoBehaviour
 
     //void CollisionZombies()
     //{
-    //    if (!Dictionary_AllGameObject.ContainsKey("zombie"))
+    //    if (!Dictionary_AllGameObject.ContainsKey(typeof(ZombieMelee).Name))
     //        return;
 
-    //    foreach (var zom1 in Dictionary_AllGameObject["zombie"])
+    //    foreach (var zom1 in Dictionary_AllGameObject[typeof(ZombieMelee).Name])
     //    {
-    //        foreach (var zom2 in Dictionary_AllGameObject["zombie"])
+    //        foreach (var zom2 in Dictionary_AllGameObject[typeof(ZombieMelee).Name])
     //        {
     //            if (zom1 != zom2)
     //            {

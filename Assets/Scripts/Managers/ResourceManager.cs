@@ -55,7 +55,7 @@ public class ResourceManager
     }
 
 
-    public string[] PrefabList = { "ZombieMelee", "Hero" };
+    public string[] PrefabList = { typeof(ZombieMelee).Name, "Hero" };
     public Dictionary<string, GameObject> prefabCache = new Dictionary<string, GameObject>();
 
     public GameObject GetPrefab(string address)

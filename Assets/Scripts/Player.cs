@@ -11,6 +11,11 @@ public class Player : Unit
 
     int count = 0;
 
+    public override void Respawn()
+    {
+
+    }
+
     private void Awake()
     {
         Init();
@@ -24,10 +29,10 @@ public class Player : Unit
     void Update()
     {
 
-        //if (Input.GetKeyDown(KeyCode.E))
-        //{
-        //    Shot();
-        //}
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Shot();
+        }
 
         if (AttackCoolTime == AttackCoolDownTimer)
         {
@@ -55,10 +60,10 @@ public class Player : Unit
     {
         
 
-        if (!Managers.Pool_Instance.Dictionary_AllGameObject.ContainsKey("zombie"))
+        if (!Managers.Pool_Instance.Dictionary_AllGameObject.ContainsKey(typeof(ZombieMelee).Name))
             return;
 
-        ZombieMonster ZM = FindCloseMonster();
+        ZombieMelee ZM = FindCloseMonster();
 
         if (ZM == null)
             return;
@@ -70,15 +75,15 @@ public class Player : Unit
       
     }
 
-    ZombieMonster FindCloseMonster()
+    ZombieMelee FindCloseMonster()
     {
-        if (!Managers.Pool_Instance.Dictionary_AllGameObject.ContainsKey("zombie"))
+        if (!Managers.Pool_Instance.Dictionary_AllGameObject.ContainsKey(typeof(ZombieMelee).Name))
             return null;
 
         float MinDistance = 9999;
-        ZombieMonster CloseMonster = null;
+        ZombieMelee CloseMonster = null;
 
-        foreach (var mon1 in Managers.Pool_Instance.Dictionary_AllGameObject["zombie"])
+        foreach (var mon1 in Managers.Pool_Instance.Dictionary_AllGameObject[typeof(ZombieMelee).Name])
         {
 
             if (mon1.bDie) // 죽어있는 몬스터는 패스
@@ -89,7 +94,7 @@ public class Player : Unit
             if (dis < MinDistance)
             {
                 MinDistance = dis;
-                CloseMonster = (ZombieMonster)mon1;
+                CloseMonster = (ZombieMelee)mon1;
             }
 
         }
