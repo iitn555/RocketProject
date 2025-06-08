@@ -25,11 +25,9 @@ public class ZombieMelee : Unit
 
     public bool bAttacking = false;
 
-    private float AttackCoolTime = AttackCoolDownTimer;
+    
     private const float AttackCoolDownTimer = 4;
-    private float JumpCoolTime = JumpCoolDownTimer;
     private const float JumpCoolDownTimer = 4;
-    private float BackPushCoolTime = BackPushCoolDownTimer;
     private const float BackPushCoolDownTimer = 4;
 
     private bool bBackPushing = false;
@@ -43,6 +41,16 @@ public class ZombieMelee : Unit
     private Rigidbody2D m_RigidBody;
 
     Vector3 RespawnPosition = new Vector3(5f, -2.9f);
+
+
+    CooldownManager ZombieMelee_CDManager = new CooldownManager(); // 몬스터마다 각각 쿨다운 매니저 할당
+
+    enum SkillNames
+    {
+        ZombieMeleeAttack, 
+        ZombieMeleeJump,
+        ZombieMeleeBackPush
+    }
     public override void Respawn()
     {
         gameObject.SetActive(true);
@@ -66,17 +74,21 @@ public class ZombieMelee : Unit
         if (Managers.Pool_Instance.Dictionary_AllGameObject.ContainsKey(typeof(ZombieMelee).Name))
             TestNumber = Managers.Pool_Instance.Dictionary_AllGameObject[typeof(ZombieMelee).Name].Count;
 
+
+
+        //Managers.Cooldown_Instance.RegisterSkill(SkillNames.ZombieMeleeAttack.ToString(), AttackCoolDownTimer);
+
+
+        ZombieMelee_CDManager.RegisterSkill(SkillNames.ZombieMeleeAttack.ToString(), AttackCoolDownTimer);
+        ZombieMelee_CDManager.RegisterSkill(SkillNames.ZombieMeleeJump.ToString(), JumpCoolDownTimer);
+        ZombieMelee_CDManager.RegisterSkill(SkillNames.ZombieMeleeBackPush.ToString(), BackPushCoolDownTimer);
+
     }
 
     private void OnEnable()
     {
         bDie = false;
-
         CurrentHp = MaxHp;
-
-        AttackCoolTime = AttackCoolDownTimer;
-        JumpCoolTime = JumpCoolDownTimer;
-        BackPushCoolTime = BackPushCoolDownTimer;
 
         if (myCoroutine != null)
         {
@@ -105,27 +117,11 @@ public class ZombieMelee : Unit
 
     void Update()
     {
-        if (AttackCoolTime < AttackCoolDownTimer)
-            AttackCoolTime += Time.deltaTime;
-        else
-            AttackCoolTime = AttackCoolDownTimer;
-
-        if (JumpCoolTime < JumpCoolDownTimer)
-            JumpCoolTime += Time.deltaTime;
-        else
-            JumpCoolTime = JumpCoolDownTimer;
-
-        if (BackPushCoolTime < BackPushCoolDownTimer)
-            BackPushCoolTime += Time.deltaTime;
-        else
-            BackPushCoolTime = BackPushCoolDownTimer;
 
         if (GetMyState(P_State.Falling))
         {
             transform.Translate(Vector2.down * fGravity * Time.deltaTime * 0.5f);
         }
-
-
 
         if (!GetMyState(P_State.Attacking))
         {
@@ -139,7 +135,11 @@ public class ZombieMelee : Unit
 
         //}
 
-
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            
+        }
+        
 
     }
 
@@ -181,56 +181,45 @@ public class ZombieMelee : Unit
         {
             if (hit.collider.gameObject.activeSelf && hit.collider.gameObject.layer == 6) // Wall
             {
-                if (AttackCoolTime == AttackCoolDownTimer)
+
+                if (ZombieMelee_CDManager.CheckCooldownSkill(SkillNames.ZombieMeleeAttack.ToString())) // 작성중
                 {
-
-
                     Box _box = hit.collider.gameObject.GetComponent<Box>();
                     if (_box != null)
                     {
                         ZombieAnimator.Play("Attack");
-                        AttackCoolTime = GetRandomNumber(0, 3f);
-
+                        SetMyState(P_State.Attacking);
+                        //AttackCoolTime = GetRandomNumber(0, 3f); // 쿨타임 재설정 하기 넣을까...?
                         _box.GetDamage(Damage);
                     }
 
                 }
+
+                
             }
 
             if (hit.collider.gameObject.layer == 7) // 몬스터
             {
                 if (!bBackPushing || myCoroutine == null)
                 {
-                    if (GetMyState(P_State.Idle) && JumpCoolTime == JumpCoolDownTimer)
+
+                    
+
+                    if (GetMyState(P_State.Idle) && ZombieMelee_CDManager.CheckCooldownSkill(SkillNames.ZombieMeleeJump.ToString()))
                     {
                         StartCoroutine(MyJump());
-                        JumpCoolTime = GetRandomNumber(0, 3f);
+                        ZombieMelee_CDManager.ResetCooldownTime(SkillNames.ZombieMeleeJump.ToString(), GetRandomNumber(0, 3f));
                     }
                 }
             }
         }
     }
 
-    void AttackStart()
-    {
-        ZombieAnimator.Play("Attack");
-
-    }
-    public void OnAttack()
-    {
-
-        if (!GetMyState(P_State.Attacking) && AttackCoolTime == AttackCoolDownTimer)
-        {
-            SetMyState(P_State.Attacking);
-
-            AttackCoolTime = GetRandomNumber(0, 3f);
-        }
-
-    }
+    
 
     public void OnAttackEnd()
     {
-
+        //Debug.Log("OnAttackEnd");
         SetMyState(P_State.Idle);
 
     }
@@ -238,12 +227,11 @@ public class ZombieMelee : Unit
 
     public void StartPushBackSide()
     {
-        if (!bBackPushing && BackPushCoolTime == BackPushCoolDownTimer)
+        if (!bBackPushing && ZombieMelee_CDManager.CheckCooldownSkill(SkillNames.ZombieMeleeBackPush.ToString()))
         {
             bBackPushing = true;
             myCoroutine = StartCoroutine(PushBackSide());
-
-            BackPushCoolTime = GetRandomNumber(0, 3f);
+            ZombieMelee_CDManager.ResetCooldownTime(SkillNames.ZombieMeleeBackPush.ToString(), GetRandomNumber(0, 3f));
         }
 
     }

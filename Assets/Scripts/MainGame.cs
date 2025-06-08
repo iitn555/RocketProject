@@ -15,12 +15,15 @@ public class MainGame : MonoBehaviour
         Managers.Input_Instance.Test();
 
         StartCoroutine(ExecuteEverySeconds());
+        //Managers.Pool_Instance.MakeOrGetObject<ZombieMelee>();
 
 
     }
 
     IEnumerator ExecuteEverySeconds() // 좀비 계속 생성
     {
+        Debug.Log("좀비 생성 시작!");
+
         while (true)
         {
             Managers.Pool_Instance.MakeOrGetObject<ZombieMelee>();
@@ -34,7 +37,6 @@ public class MainGame : MonoBehaviour
 
     void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.T))
 
         if (Input.GetKeyDown(KeyCode.Z))
         {

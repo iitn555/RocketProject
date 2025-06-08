@@ -12,10 +12,12 @@ public class Managers : MonoBehaviour
     PoolManager _pool = new PoolManager();
     InputManager _input = new InputManager();
     ResourceManager _resource = new ResourceManager();
+    //CooldownManager _cooldown = new CooldownManager();
 
     public static PoolManager Pool_Instance { get { return Instance._pool; } }
     public static InputManager Input_Instance { get { return Instance._input; } }
     public static ResourceManager Resource_Instance { get { return Instance._resource; } }
+    //public static CooldownManager Cooldown_Instance { get { return Instance._cooldown; } }
 
 
     void Start()

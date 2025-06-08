@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class Player : Unit
 {
-    private float AttackCoolTime = AttackCoolDownTimer;
+    
     private const float AttackCoolDownTimer = 1;
+
+    CooldownManager CoolDownManager = new CooldownManager();
 
     Bullet[] m_Bullets = new Bullet[12];
 
@@ -19,6 +21,8 @@ public class Player : Unit
     private void Awake()
     {
         Init();
+
+        CoolDownManager.RegisterSkill("Shot", AttackCoolDownTimer);
     }
 
     void Start()
@@ -34,19 +38,13 @@ public class Player : Unit
             Shot();
         }
 
-        if (AttackCoolTime == AttackCoolDownTimer)
+        //플레이어 공격 시작
+        if (CoolDownManager.CheckCooldownSkill("Shot"))
         {
             Shot();
-            AttackCoolTime = 0;
+            
         }
 
-        if (AttackCoolTime < AttackCoolDownTimer)
-            AttackCoolTime += Time.deltaTime;
-        else
-            AttackCoolTime = AttackCoolDownTimer;
-
-
-        
 
     }
 
