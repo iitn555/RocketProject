@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public struct MYRECT
 {
@@ -12,9 +13,11 @@ public struct MYRECT
 public abstract class Unit : MonoBehaviour
 {
     protected GameObject ThisGameObject { get; set; }
-    protected int CurrentHp = 0;
-    protected int MaxHp = 10;
-    protected int Damage = 0;
+    protected float CurrentHp = 0;
+    protected float MaxHp = 10;
+    protected float Damage = 0;
+
+    protected Slider Hpbar = null;
 
     public MYRECT m_tRect = new MYRECT();
 
@@ -41,9 +44,14 @@ public abstract class Unit : MonoBehaviour
     }
 
 
-    public void GetDamage(int _damage)
+    public void GetDamage(float _damage)
     {
         CurrentHp -= _damage;
+
+        if(Hpbar != null)
+        {
+            Hpbar.value = CurrentHp / MaxHp;
+        }
 
         if(CurrentHp <= 0)
         {
@@ -58,6 +66,19 @@ public abstract class Unit : MonoBehaviour
     {
         ThisGameObject = this.gameObject;
         CurrentHp = MaxHp;
+
+        var a = gameObject.transform.Find("HpPanel");
+        if (a == null)
+            return;
+
+        var b = a.GetChild(0);
+        var c = b.GetChild(0);
+
+        
+
+        Hpbar = gameObject.transform.Find("HpPanel").GetChild(0).GetChild(0).GetComponent<Slider>();
+
+
     }
 
 }

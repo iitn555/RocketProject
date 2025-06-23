@@ -17,13 +17,23 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 039efff5308c00d479993cb27ac42d21
   m_SerializeEntries:
-  - m_GUID: 39e73014526a04149a4b4bff2302893b
-    m_Address: Hero
+  - m_GUID: 002f672e680cb144294302746238deb2
+    m_Address: Assets/Resources_moved/Prefabs/ZombieMelee.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e48e7c461a85c463cba5a999afb91a67
-    m_Address: ZombieMelee
+  - m_GUID: 100d58cac1ea5da40b90fd2a8c404190
+    m_Address: Assets/Resources_moved/Prefabs/Bullet.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2e987a7ee2ed62947a9a1ac400a6b156
+    m_Address: Assets/Resources_moved/Prefabs/Box.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d8112770e121d3849908ab4ebc9679c2
+    m_Address: Assets/Resources_moved/Prefabs/Hero.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

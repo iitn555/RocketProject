@@ -13,6 +13,8 @@ public class Player : Unit
 
     int count = 0;
 
+    public bool bPlayerAttackStart = true; // 테스트용
+
     public override void Respawn()
     {
 
@@ -38,13 +40,11 @@ public class Player : Unit
             Shot();
         }
 
-        //플레이어 공격 시작
-        if (CoolDownManager.CheckCooldownSkill("Shot"))
+        if (bPlayerAttackStart)
         {
-            Shot();
-            
+            if (CoolDownManager.CheckCooldownSkill("Shot"))
+                Shot(); //플레이어가 몬스터를 공격
         }
-
 
     }
 

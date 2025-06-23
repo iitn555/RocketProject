@@ -9,6 +9,8 @@ public class ResourceManager
 {
     Transform _root;
 
+    Dictionary<string, GameObject> List_Prefabs = new Dictionary<string, GameObject>();
+
     public void Init()
     {
         if (_root == null)
@@ -39,15 +41,27 @@ public class ResourceManager
 
     public GameObject Instantiate(string path, Transform parent = null) // 리소스폴더에서 로드
     {
-        GameObject original = Load<GameObject>($"Prefabs/{path}");
-        if (original == null)
+        GameObject original = null;
+        if (List_Prefabs.TryGetValue(path, out GameObject obj))
         {
-            Debug.Log($"Failed to load prefab : {path}");
-            return null;
+            original = List_Prefabs[path];
+        }
+        else
+        {
+            original = Load<GameObject>($"Prefabs/{path}");
+            if (original == null)
+            {
+                Debug.Log($"Failed to load prefab : {path}");
+                return null;
+            }
+            else
+            {
+                List_Prefabs.Add(path, original);
+            }
         }
 
-        //if (original.GetComponent<Poolable>() != null)
-        //    return Managers.Pool.Pop(original, parent).gameObject;
+            
+        
 
         GameObject go = Object.Instantiate(original, parent);
         go.name = original.name;
