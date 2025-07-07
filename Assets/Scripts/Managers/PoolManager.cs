@@ -73,7 +73,9 @@ public class PoolManager
             {
                 if (_Object.bDie)
                 {
+                    _Object.CommonRespawn();
                     _Object.Respawn();
+
                     return _Object as T;
                 }
 
@@ -134,7 +136,7 @@ public class PoolManager
             box.layer = 6; // Wall
             var Rigid = box.AddComponent<Rigidbody2D>();
             Rigid.constraints = RigidbodyConstraints2D.FreezeRotation;
-            Box BoxComponent = box.AddComponent<Box>();
+            Box BoxComponent = box.AddComponent<Box>(); 
             RegisterUnit<Box>(BoxComponent, typeof(Box).Name);
             AllBox[i] = box;
 

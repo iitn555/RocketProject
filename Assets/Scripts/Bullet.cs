@@ -10,6 +10,15 @@ public class Bullet : Unit
 
     float fSpeed = 10;
 
+    Player _player;
+
+    private void Awake()
+    {
+        Damage = 5;
+        Init();
+        
+    }
+
     public override void Respawn()
     {
         gameObject.SetActive(true);
@@ -23,11 +32,7 @@ public class Bullet : Unit
 
     }
 
-    private void Awake()
-    {
-        Damage = 5;
-        Init();
-    }
+    
 
     private void Update()
     {
@@ -41,6 +46,11 @@ public class Bullet : Unit
         CheckOutofMap();
     }
 
+    public void SetPlayer(Player _p)
+    {
+        _player = _p;
+    }
+
     public void StartShot(Vector3 _dir, Vector3 _startpos)
     {
         bFlying = true;
@@ -52,7 +62,7 @@ public class Bullet : Unit
     {
         if (Mathf.Abs(transform.position.x) > 20 || Mathf.Abs(transform.position.y) > 10)
         {
-            SetDie();
+            BulletQuit();
         }
 
     }
@@ -65,13 +75,13 @@ public class Bullet : Unit
             ZombieMelee monster = other.GetComponent<ZombieMelee>();
             if (monster != null)
             {
-                monster.GetDamage(Damage);
-                SetDie();
+                monster.GetDamage(Damage, _player, monster);
+                BulletQuit();
             }
         }
     }
 
-    void SetDie() // 총알 움직임 종료
+    void BulletQuit() // 총알 움직임 종료
     {
         bFlying = false;
 

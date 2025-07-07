@@ -53,15 +53,23 @@ public class ZombieMelee : Unit
     }
     public override void Respawn()
     {
-        gameObject.SetActive(true);
-        bDie = false;
+        //gameObject.SetActive(true);
+        //bDie = false;
         transform.position = RespawnPosition;
 
+        //if (Hpbar != null)
+            //Hpbar.value = CurrentHp / MaxHp;
+
+
     }
+
+
     private void Awake()
     {
         MaxHp = 10;
         Damage = 1;
+        Exp = 50;
+
         Init();
 
         var boxcom = gameObject.AddComponent<BoxCollider2D>();
@@ -190,7 +198,7 @@ public class ZombieMelee : Unit
                         ZombieAnimator.Play("Attack");
                         SetMyState(P_State.Attacking);
                         //AttackCoolTime = GetRandomNumber(0, 3f); // 쿨타임 재설정 하기 넣을까...?
-                        _box.GetDamage(Damage);
+                        _box.GetDamage(Damage, this, _box);
                     }
 
                 }

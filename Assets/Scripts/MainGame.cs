@@ -11,21 +11,20 @@ public class MainGame : MonoBehaviour
 
     void Start()
     {
+        //Managers.Input_Instance.Test();
 
-        Managers.Input_Instance.Test();
+        Managers.Pool_Instance.MakeOrGetObject<ZombieMelee>();
 
-        StartCoroutine(ExecuteEverySeconds());
-        //Managers.Pool_Instance.MakeOrGetObject<ZombieMelee>();
+        //StartCoroutine(ExecuteEverySeconds()); 몬스터생성
 
         //플레이어가 몬스터를 공격
-
         //if (Managers.Pool_Instance.Dictionary_AllGameObject.TryGetValue(typeof(Player).Name, out List<Unit> _unit))
         //{
         //    Player _pp = _unit[0] as Player;
         //    _pp.bPlayerAttackStart = false; // 테스트용
         //}
 
-       
+
 
     }
 

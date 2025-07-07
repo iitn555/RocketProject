@@ -4,15 +4,9 @@ using UnityEngine;
 
 public class Player : Unit
 {
-    
+
     private const float AttackCoolDownTimer = 1;
-
     CooldownManager CoolDownManager = new CooldownManager();
-
-    Bullet[] m_Bullets = new Bullet[12];
-
-    int count = 0;
-
     public bool bPlayerAttackStart = true; // 테스트용
 
     public override void Respawn()
@@ -48,15 +42,8 @@ public class Player : Unit
 
     }
 
-
-    public void ReadyBullet(Bullet[] _Bullets)
-    {
-        m_Bullets = _Bullets;
-    }
-
     void Shot()
     {
-        
 
         if (!Managers.Pool_Instance.Dictionary_AllGameObject.ContainsKey(typeof(ZombieMelee).Name))
             return;
@@ -69,8 +56,9 @@ public class Player : Unit
         var dir = (ZM.transform.position - transform.position).normalized;
 
         Bullet bul = Managers.Pool_Instance.MakeOrGetObject<Bullet>();
+        bul.SetPlayer(this);
         bul.StartShot(dir, transform.position);
-      
+
     }
 
     ZombieMelee FindCloseMonster()
@@ -99,5 +87,21 @@ public class Player : Unit
 
         return CloseMonster;
     }
+
+    protected override void GetExp(int _exp)
+    {
+        Exp += _exp;
+
+        while (Exp >= Level * 10)
+        {
+            Exp -= Level * 10;
+            ++Level;
+            Debug.Log($"레벨업! 현재 레벨: {Level}");
+        }
+
+        Debug.Log($"현재경험치: {Exp} 필요 경험치: {Level * 10}");
+
+    }
+
 
 }
